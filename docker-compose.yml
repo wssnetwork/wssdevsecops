@@ -68,6 +68,25 @@ services:
       - wssdevsecops-postgresql_data:/var/lib/postgresql/data
     networks:
       - devsecops
+  mysql:
+    image: mysql:5.5
+    volumes:
+      - wssdevsecops-mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ec95c258266b8e985848cae688effa2b
+    networks:
+      - devsecops
+  dvja:
+    build: ./dvja
+    depends_on:
+      - mysql
+    ports:
+      - 8088:8080
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ec95c258266b8e985848cae688effa2b
+    networks:
+      - devsecops
 
 networks:
   devsecops:
@@ -84,3 +103,4 @@ volumes:
   wssdevsecops-sonarqube_logs:
   wssdevsecops-postgresql:
   wssdevsecops-postgresql_data:
+  wssdevsecops-mysql:
