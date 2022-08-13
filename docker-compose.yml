@@ -4,7 +4,7 @@ services:
     image: kalilinux/kali-rolling:latest
     container_name: dso_kali
     volumes:
-      - wssdevsecops/kali:/home
+      - wssdevsecops-kali:/home
     tty: true
     networks:
       - devsecops
@@ -20,9 +20,9 @@ services:
       - 8080:80
       - 8443:443
     volumes:
-      - wssdevsecops/config:/etc/gitlab
-      - wssdevsecops/logs:/var/log/gitlab
-      - wssdevsecops/data:/var/opt/gitlab
+      - wssdevsecops-config:/etc/gitlab
+      - wssdevsecops-logs:/var/log/gitlab
+      - wssdevsecops-data:/var/opt/gitlab
     networks:
       - devsecops
   gitlab-runner:
@@ -33,7 +33,7 @@ services:
       - gitlab
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - wssdevsecops/gitlab-runner:/etc/gitlab-runner
+      - wssdevsecops-gitlab-runner:/etc/gitlab-runner
     networks:
       - devsecops
   sonarqube:
@@ -47,9 +47,9 @@ services:
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: sonar
     volumes:
-      - wssdevsecops/sonarqube_data:/opt/sonarqube/data
-      - wssdevsecops/sonarqube_extensions:/opt/sonarqube/extensions
-      - wssdevsecops/sonarqube_logs:/opt/sonarqube/logs
+      - wssdevsecops-sonarqube_data:/opt/sonarqube/data
+      - wssdevsecops-sonarqube_extensions:/opt/sonarqube/extensions
+      - wssdevsecops-sonarqube_logs:/opt/sonarqube/logs
     ports:
       - 9000:9000
     networks:
@@ -63,8 +63,8 @@ services:
       POSTGRES_PASSWORD: sonar
       POSTGRES_DB: sonar
     volumes:
-      - wssdevsecops/postgresql:/var/lib/postgresql
-      - wssdevsecops/postgresql_data:/var/lib/postgresql/data
+      - wssdevsecops-postgresql:/var/lib/postgresql
+      - wssdevsecops-postgresql_data:/var/lib/postgresql/data
     networks:
       - devsecops
 
@@ -73,4 +73,13 @@ networks:
     name: devsecops-network
 
 volumes:
-  wssdevsecops/kali:
+  wssdevsecops-kali:
+  wssdevsecops-config:
+  wssdevsecops-logs:
+  wssdevsecops-data:
+  wssdevsecops-gitlab-runner:
+  wssdevsecops-sonarqube_data:
+  wssdevsecops-sonarqube_extensions:
+  wssdevsecops-sonarqube_logs:
+  wssdevsecops-postgresql:
+  wssdevsecops-postgresql_data:
