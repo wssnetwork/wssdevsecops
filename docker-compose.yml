@@ -74,3 +74,4 @@ networks:
 
 volumes:
   wssdevsecops:
+    external: true
