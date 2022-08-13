@@ -73,5 +73,4 @@ networks:
     name: devsecops-network
 
 volumes:
-  wssdevsecops:
-    external: true
+  wssdevsecops/kali:
