@@ -1,0 +1,76 @@
+version: "3.9"
+services:
+  kali:
+    image: kalilinux/kali-rolling:latest
+    container_name: dso_kali
+    volumes:
+      - wssdevsecops/kali:/home
+    tty: true
+    networks:
+      - devsecops
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: localhost
+    container_name: gitlab-ce
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost'
+    ports:
+      - 8080:80
+      - 8443:443
+    volumes:
+      - wssdevsecops/config:/etc/gitlab
+      - wssdevsecops/logs:/var/log/gitlab
+      - wssdevsecops/data:/var/opt/gitlab
+    networks:
+      - devsecops
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner    
+    restart: always
+    depends_on:
+      - gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - wssdevsecops/gitlab-runner:/etc/gitlab-runner
+    networks:
+      - devsecops
+  sonarqube:
+    image: sonarqube:community
+    hostname: sonarqube
+    container_name: sonarqube
+    depends_on:
+      - sonardb
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonardb:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - wssdevsecops/sonarqube_data:/opt/sonarqube/data
+      - wssdevsecops/sonarqube_extensions:/opt/sonarqube/extensions
+      - wssdevsecops/sonarqube_logs:/opt/sonarqube/logs
+    ports:
+      - 9000:9000
+    networks:
+      - devsecops
+  sonardb:
+    image: postgres:12
+    hostname: postgresql
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - wssdevsecops/postgresql:/var/lib/postgresql
+      - wssdevsecops/postgresql_data:/var/lib/postgresql/data
+    networks:
+      - devsecops
+
+networks:
+  devsecops:
+    name: devsecops-network
+
+volumes:
+  wssdevsecops:
