@@ -34,6 +34,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - wssdevsecops-gitlab-runner:/etc/gitlab-runner
+      - wssdevsecops-gitlab-runner:/home/gitlab-runner
     networks:
       - devsecops
   sonarqube:
