@@ -1,13 +1,5 @@
 version: "3.9"
 services:
-  kali:
-    image: kalilinux/kali-rolling:latest
-    container_name: dso_kali
-    volumes:
-      - wssdevsecops-kali:/home
-    tty: true
-    networks:
-      - devsecops
   gitlab:
     image: gitlab/gitlab-ce:latest
     restart: always
@@ -37,6 +29,19 @@ services:
       - wssdevsecops-gitlab-runner:/home/gitlab-runner
     networks:
       - devsecops
+  sonardb:
+    image: postgres:12
+    hostname: postgresql
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - wssdevsecops-postgresql:/var/lib/postgresql
+      - wssdevsecops-postgresql_data:/var/lib/postgresql/data
+    networks:
+      - devsecops
   sonarqube:
     image: sonarqube:community
     hostname: sonarqube
@@ -53,19 +58,6 @@ services:
       - wssdevsecops-sonarqube_logs:/opt/sonarqube/logs
     ports:
       - 9000:9000
-    networks:
-      - devsecops
-  sonardb:
-    image: postgres:12
-    hostname: postgresql
-    container_name: postgresql
-    environment:
-      POSTGRES_USER: sonar
-      POSTGRES_PASSWORD: sonar
-      POSTGRES_DB: sonar
-    volumes:
-      - wssdevsecops-postgresql:/var/lib/postgresql
-      - wssdevsecops-postgresql_data:/var/lib/postgresql/data
     networks:
       - devsecops
   mysql:
@@ -93,7 +85,6 @@ networks:
     name: devsecops-network
 
 volumes:
-  wssdevsecops-kali:
   wssdevsecops-config:
   wssdevsecops-logs:
   wssdevsecops-data:
