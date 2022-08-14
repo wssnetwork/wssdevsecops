@@ -22,6 +22,24 @@ Need two docker-compose yml files
     $ cd wssdevsecops
     ```
 4. Run docker-compose
-
+    ```
+    $ docker-compose up -d
+    ```
+### Login gitlab-ce
+5. To get gitlab-ce initial password
+    ```
+    $ docker exec -it gitlab-ce grep 'Password:' /etc/gitlab/initial_root_password
+    ```
+6. Access Gitlab at `http://127.0.0.1:8080`
+    ```
+    username: root
+    password: <output-from-command-at-step-5>
+    ```
+### Login sonarqube
+7. Access Sonarqube at `http://127.0.0.1:9000`. Once login with credential below will require change to new password
+    ```
+    username: admin
+    password: admin
+    ```
 ## To get local copy for local gitlab
 To use gitlab, git clone again wssdevsecops file in kali and upload local gitlab

@@ -1,5 +1,4 @@
 FROM openjdk:8
-MAINTAINER Abhisek Datta <abhisek@appsecco.com>
 
 RUN apt-get update
 RUN apt-get install -y default-mysql-client
@@ -13,5 +12,5 @@ COPY . .
 RUN mvn clean package
 RUN chmod 755 /app/scripts/start.sh
 
-EXPOSE 8080
+EXPOSE 8088
 CMD ["sh", "-c", "/app/scripts/start.sh"]
