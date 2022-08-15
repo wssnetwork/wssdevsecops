@@ -1,8 +1,5 @@
 # WssDevSecOps
-Need two docker-compose yml files
-1. docker-compose for set of tools
-2. docker-compose for defectdojo
-
+WSS DevSecOps In Action
 ## To start
 1. If in Windows, use WSL2 Ubuntu and link with Docker-Desktop. Easy to manage with VS Code connect to WSL2 (https://code.visualstudio.com/docs/remote/wsl).
 2. Requirement to run sonarqube https://docs.sonarqube.org/latest/requirements/requirements/#header-4.
@@ -47,6 +44,16 @@ Need two docker-compose yml files
     password: admin
     ```
 ### DVJA
-8. Access DVJA at `http://127.0.0.1:8088`. No user need to register if want to play DVJA.
-## To get local copy for local gitlab
-To use gitlab, git clone again wssdevsecops file in kali and upload local gitlab
+8. Access DVJA at `http://127.0.0.1:8088`. No user, will need to register if want to play DVJA.
+### To use DVJA codebase and push to local Gitlab
+9. In wssdevsecops directory, copy dvja folder to home (to separate git config).
+    ```
+    $ sudo cp -r dvja /home
+    ```
+10. Create blank project in gitlab-ce `http://127.0.0.1:8080` as below. 
+    ![gitlab blank project](img/gitlab-blank-project.jpg)
+11. 
+# Things To Do
+Need two docker-compose yml files
+1. docker-compose for set of tools
+2. docker-compose for defectdojo
