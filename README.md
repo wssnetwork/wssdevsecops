@@ -49,10 +49,23 @@ WSS DevSecOps In Action
 9. In wssdevsecops directory, copy dvja folder to home (to separate git config).
     ```
     $ sudo cp -r dvja /home
+    $ sudo chown -R <user> /home/dvja
+    $ cd /home/dvja
     ```
 10. Create blank project in gitlab-ce `http://127.0.0.1:8080` as below. 
     ![gitlab blank project](img/gitlab-blank-project.jpg)
-11. 
+11. Once project created, run git init in dvja directory. (can follow step as suggest in gitlab-ce page)
+    ```
+    $ git init --initial-branch=main
+    $ git config --global user.email "youremail@yourdomain.com"
+    $ git config --global user.name "your username"
+    $ git config --global --add safe.directory /home/dvja
+    $ git remote add origin http://localhost/root/dvja.git
+    $ git add .
+    $ git commit -m "initial commit"
+    $ git push -u origin main
+    ```
+12. 
 # Things To Do
 Need two docker-compose yml files
 1. docker-compose for set of tools
