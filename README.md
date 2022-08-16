@@ -28,33 +28,33 @@ WSS DevSecOps In Action
     $ docker-compose up -d
     ```
 ### Login gitlab-ce
-5. To get gitlab-ce initial password.
+1. To get gitlab-ce initial password.
     ```
     $ docker exec -it gitlab-ce grep 'Password:' /etc/gitlab/initial_root_password
     ```
-6. Access Gitlab at `http://127.0.0.1:8080`.
+2. Access Gitlab at `http://127.0.0.1:8080`.
     ```
     username: root
     password: <output-from-command-at-step-5>
     ```
 ### Login sonarqube
-7. Access Sonarqube at `http://127.0.0.1:9000`. Once login with credential below will require change to new password.
+1. Access Sonarqube at `http://127.0.0.1:9000`. Once login with credential below will require change to new password.
     ```
     username: admin
     password: admin
     ```
 ### DVJA
-8. Access DVJA at `http://127.0.0.1:8088`. No user, will need to register if want to play DVJA.
+1. Access DVJA at `http://127.0.0.1:8088`. No user, will need to register if want to play DVJA.
 ### To use DVJA codebase and push to local Gitlab
-9. In wssdevsecops directory, copy dvja folder to home (to separate git config).
+1. In wssdevsecops directory, copy dvja folder to home (to separate git config).
     ```
     $ sudo cp -r dvja /home
     $ sudo chown -R <user> /home/dvja
     $ cd /home/dvja
     ```
-10. Create blank project in gitlab-ce `http://127.0.0.1:8080` as below. 
+2. Create blank project in gitlab-ce `http://127.0.0.1:8080` as below. 
     ![gitlab blank project](img/gitlab-blank-project.jpg)
-11. Once project created, run git init in dvja directory. (can follow step as suggest in gitlab-ce page)
+3. Once project created, run git init in dvja directory. (can follow step as suggest in gitlab-ce page)
     ```
     $ git init --initial-branch=main
     $ git config --global user.email "youremail@yourdomain.com"
@@ -65,7 +65,38 @@ WSS DevSecOps In Action
     $ git commit -m "initial commit"
     $ git push -u origin main
     ```
-12. 
+4. Verify project uploaded in gitlab-ce.
+### Register gitlab-runner
+1. Inside gitlab-ce, at dvja project go to `Settings > CI/CD > Runners`. Take note on registration token.
+2. At host, run command to register gitlab-runner.
+    ```
+    $ docker exec -it gitlab-runner /bin/bash -c "gitlab-runner register --url http://gitlab-ce/ --registration-token <token-from-step-1>"
+    ```
+3. Fill up the details. Just HIT ENTER to follow default details.
+    ```
+    Enter the GitLab instance URL (for example, https://gitlab.com/):
+    [http://gitlab-ce/]: HIT ENTER
+    Enter the registration token:
+    [<token>]: HIT ENTER
+    Enter a description for the runner:
+    [e5c5d3c3ef88]: dvja
+    Enter tags for the runner (comma-separated):
+    dvja
+    Enter optional maintenance note for the runner:
+
+    Registering runner... succeeded                     runner=GR1348941Ezg4zQn6
+    Enter an executor: docker, docker-ssh, docker-ssh+machine, kubernetes, custom, parallels, shell, ssh, virtualbox, docker+machine:
+    docker
+    Enter the default Docker image (for example, ruby:2.7):
+    alpine:latest
+    Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded!
+    
+    Configuration (with the authentication token) was saved in "/etc/gitlab-runner/config.toml"
+    ```
+4. Verify configuration at gitlab-ce.
+   ![runner-1](img/runner-1.jpg)
+5. Click icon pencil at runner. Checked `Run untagged jobs` and verify config as below.
+   ![runner-2](img/runner-2.jpg)
 # Things To Do
 Need two docker-compose yml files
 1. docker-compose for set of tools
