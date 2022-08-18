@@ -37,6 +37,7 @@ WSS DevSecOps In Action
     username: root
     password: <output-from-command-at-step-5>
     ```
+TODO:Buang no. 3 jika tak perlu
 3. Configure external_url.
     ```
     $ docker exec -it gitlab-ce /bin/bash
@@ -67,7 +68,7 @@ WSS DevSecOps In Action
     $ sudo chown -R <user> /home/dvja
     $ cd /home/dvja
     ```
-2. Create blank project in gitlab-ce `http://127.0.0.1:8080` as below. 
+2. Create blank project in gitlab-ce `http://127.0.0.1` as below. 
     ![gitlab blank project](img/gitlab-blank-project.jpg)
 3. Once project created, run git init in dvja directory. (can follow step as suggest in gitlab-ce page)
     ```
@@ -122,7 +123,7 @@ WSS DevSecOps In Action
     
     # --> press i
     # change privileged = false to privileged = true
-    # add extra_hosts = ["gitlab-ce:127.0.0.1"] --> below "volumes.."
+    # add extra_hosts = ["gitlab-ce:172.18.0.3"] --> below "volumes.." | IP refer to IP in docker network
     # --> press Esc > shift+: > wq > Enter
 
     $ exit

@@ -10,23 +10,11 @@ services:
         external_url 'http://localhost'
     ports:
       - 80:80
-      - 8443:443
+      - 443:443
     volumes:
       - wssdevsecops-config:/etc/gitlab
       - wssdevsecops-logs:/var/log/gitlab
       - wssdevsecops-data:/var/opt/gitlab
-    networks:
-      - devsecops
-  gitlab-runner:
-    image: gitlab/gitlab-runner:alpine
-    container_name: gitlab-runner    
-    restart: always
-    depends_on:
-      - gitlab
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - wssdevsecops-gitlab-runner:/etc/gitlab-runner
-      - wssdevsecops-gitlab-runner:/home/gitlab-runner
     networks:
       - devsecops
   sonardb:
@@ -88,7 +76,6 @@ volumes:
   wssdevsecops-config:
   wssdevsecops-logs:
   wssdevsecops-data:
-  wssdevsecops-gitlab-runner:
   wssdevsecops-sonarqube_data:
   wssdevsecops-sonarqube_extensions:
   wssdevsecops-sonarqube_logs:
