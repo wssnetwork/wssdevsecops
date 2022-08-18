@@ -37,6 +37,21 @@ WSS DevSecOps In Action
     username: root
     password: <output-from-command-at-step-5>
     ```
+3. Configure external_url.
+    ```
+    $ docker exec -it gitlab-ce /bin/bash
+
+    # --> inside gitlab-ce shell
+
+    $ vi /etc/gitlab/gitlab.rb
+
+    # --> press i
+    # at line 32, change external_url 'http://gitlab-ce/'
+    # --> press Esc > shift+: > wq > Enter
+
+    $ gitlab-ctl reconfigure
+    $ exit
+    ```
 ### Login sonarqube
 1. Access Sonarqube at `http://127.0.0.1:9000`. Once login with credential below will require change to new password.
     ```
@@ -97,6 +112,21 @@ WSS DevSecOps In Action
    ![runner-1](img/runner-1.jpg)
 5. Click icon pencil at runner. Checked `Run untagged jobs` and verify config as below.
    ![runner-2](img/runner-2.jpg)
+6. Edit config.toml in gitlab-runner container.
+    ```
+    $ docker exec -it gitlab-runner /bin/bash
+    
+    # --> inside gitlab-runner shell
+
+    $ vi /etc/gitlab-runner/config.toml
+    
+    # --> press i
+    # change privileged = false to privileged = true
+    # add extra_hosts = ["gitlab-ce:127.0.0.1"] --> below "volumes.."
+    # --> press Esc > shift+: > wq > Enter
+
+    $ exit
+    ```
 # Things To Do
 Need two docker-compose yml files
 1. docker-compose for set of tools
