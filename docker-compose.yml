@@ -3,18 +3,20 @@ services:
   gitlab:
     image: gitlab/gitlab-ce:latest
     restart: always
-    hostname: localhost
+    hostname: gitlab-ce
     container_name: gitlab-ce
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost'
+        external_url 'http://gitlab-ce'
     ports:
       - 80:80
       - 443:443
+      - 22:22
     volumes:
       - wssdevsecops-config:/etc/gitlab
       - wssdevsecops-logs:/var/log/gitlab
       - wssdevsecops-data:/var/opt/gitlab
+    shm_size: '256m'
     networks:
       - devsecops
   sonardb:
