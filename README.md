@@ -27,6 +27,7 @@ WSS DevSecOps In Action
        ```
    * Once the file save and exit, run `$ sudo netplan apply` to make the configuration effective.
 2. The objective is to have every solution setup in Virtual Box.
+    
     ![vbox sample](img/vbox-sample.jpg)
 3. To easier connect per each instance, create entry in hosts file for each instance.
    * In Windows

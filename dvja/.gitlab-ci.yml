@@ -1,0 +1,105 @@
+# image: alpine:latest
+variables:
+  API_KEY: "AIzaSyCqDDZ_1wVJHJzAnGfkSsdySwPrNf6w6N4" # to remediate, remove this line
+  SONAR_PROJECT_KEY: "dvja"
+  DOJO_PRODUCT_NAME: "dvja"
+  DOJO_ENGAGEMENT_NAME: "dvja"
+  DOJO_TAGS: "devsecops"
+  DOJO_SONAR_SCAN_TYPE: "SonarQube API Import"
+  DOJO_DEPENDENCY_CHECK_SCAN_TYPE: "Dependency Check Scan"
+  DOJO_GITLEAKS_SCAN_TYPE: "Gitleaks Scan"
+  DOJO_OWASP_ZAP_SCAN_TYPE: "ZAP Scan"
+
+stages:
+  - pre-staging-security-scan
+  - post-staging-security-scan
+  - upload-defectdojo
+
+###
+### Build stage placement - build activity will be here
+###
+
+# SAST - Static Application Security Testing - performing source code scanning to the codebase.
+# SCA - Software Composition Analysis - performing scanning to 3rd party software libraries to identify vulnerable components.
+# Best practice to initiate this scan once the application is successfully build.
+
+SAST-SCA-sonarqube-and-dependency-check:
+  stage: pre-staging-security-scan
+  image: maven:3.6.3-jdk-11
+  cache:
+    paths:
+      - .m2/repository/
+  script:
+    - mvn clean verify sonar:sonar -Pcoverage -Dmaven.repo.local=.m2/repository -Dsonar.projectKey="${SONAR_PROJECT_KEY}" -Dsonar.projectName="${DOJO_PRODUCT_NAME}" -Dsonar.host.url="${SONAR_HOST_URL}" -Dsonar.login="${SONAR_TOKEN}" -Dsonar.dependencyCheck.xmlReportPath=target/dependency-check-report.xml
+  artifacts:
+    paths: [target/dependency-check-report.xml]
+    when: always
+    expire_in: 24 hrs
+  allow_failure: true
+
+# # Secrets Scanning - to identify any hardcoded/unprotected credentials, API keys, etc., within the codebase.
+# # Best practice to initiate this scan once the application is successfully build.
+# # Two samples below just to show case variance of scanning tool.
+
+SECRETS-SCANNING-gitleaks:
+  stage: pre-staging-security-scan
+  image:
+    name: "zricethezav/gitleaks"
+    entrypoint: [""]
+  script: gitleaks detect -v --report-path=gitleaks-report.json --report-format=json   
+  artifacts:
+    paths: [gitleaks-report.json]
+    when: always
+    expire_in: 24 hrs 
+  allow_failure: true
+
+###
+### Staging deployment placement - deployment to test/staging/development environment will be here
+###
+
+# DAST - Dynamic Application Security Testing - to perform scanning during the application in runtime state.
+# DAST scanning start after application been deployed. It require the application in running/live state.
+
+DAST-owasp-zap:
+  stage: post-staging-security-scan
+  image: owasp/zap2docker-weekly
+  before_script:
+    - mkdir -p /zap/wrk
+  script:
+    - zap-full-scan.py -t "http://dvja:8080/" -m 1 -d -I -x testreport.xml 
+    - cp /zap/wrk/testreport.xml testreport.xml
+  artifacts:
+    paths: [testreport.xml]
+    when: always
+    expire_in: 24 hrs
+  allow_failure: true
+
+###
+### Upload report to defectdojo
+###
+
+image: curlimages/curl
+
+Upload-sonarqube:
+  stage: upload-defectdojo
+  script: 
+    - curl -X POST "http://defectdojo:8080/api/v2/reimport-scan/" -k -H "accept:application/json" -H "Authorization:Token ${DOJO_AUTH_TOKEN}" -F "product_name=${DOJO_PRODUCT_NAME}" -F "engagement_name=${DOJO_ENGAGEMENT_NAME}" -F "scan_type=${DOJO_SONAR_SCAN_TYPE}" -F "tags=${DOJO_TAGS}" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "push_to_jira=false" -F "close_old_findings=true" -F "auto_create_context=true" -F "skip_duplicates=true"
+  allow_failure: true
+
+Upload-dependency-check:
+  stage: upload-defectdojo
+  script: 
+    - curl -X POST "http://defectdojo:8080/api/v2/reimport-scan/" -k -H "accept:application/json" -H "Authorization:Token ${DOJO_AUTH_TOKEN}" -H "Content-Type:multipart/form-data" -F "product_name=${DOJO_PRODUCT_NAME}" -F "engagement_name=${DOJO_ENGAGEMENT_NAME}" -F "scan_type=${DOJO_DEPENDENCY_CHECK_SCAN_TYPE}" -F "tags=${DOJO_TAGS}" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "push_to_jira=false" -F "close_old_findings=true" -F "auto_create_context=true" -F "skip_duplicates=true" -F "file=@target/dependency-check-report.xml;type=text/xml"
+  allow_failure: true
+    
+Upload-gitleaks:
+  stage: upload-defectdojo
+  script: 
+    - curl -X POST "http://defectdojo:8080/api/v2/reimport-scan/" -k -H "accept:application/json" -H "Authorization:Token ${DOJO_AUTH_TOKEN}" -H "Content-Type:multipart/form-data" -F "product_name=${DOJO_PRODUCT_NAME}" -F "engagement_name=${DOJO_ENGAGEMENT_NAME}" -F "scan_type=${DOJO_GITLEAKS_SCAN_TYPE}" -F "tags=${DOJO_TAGS}" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "push_to_jira=false" -F "close_old_findings=true" -F "auto_create_context=true" -F "skip_duplicates=true" -F "file=@gitleaks-report.json;type=application/json"
+  allow_failure: true
+
+Upload-owasp-zap:
+  stage: upload-defectdojo
+  script: 
+    - curl -X POST "http://defectdojo:8080/api/v2/reimport-scan/" -k -H "accept:application/json" -H "Authorization:Token ${DOJO_AUTH_TOKEN}" -H "Content-Type:multipart/form-data" -F "product_name=${DOJO_PRODUCT_NAME}" -F "engagement_name=${DOJO_ENGAGEMENT_NAME}" -F "scan_type=${DOJO_OWASP_ZAP_SCAN_TYPE}" -F "tags=${DOJO_TAGS}" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "push_to_jira=false" -F "close_old_findings=true" -F "auto_create_context=true" -F "skip_duplicates=true" -F "file=@testreport.xml;type=text/xml"
+  allow_failure: true
